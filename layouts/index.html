@@ -23,7 +23,7 @@
     }}
 
     <main class="min-h-screen px-4 py-5 sm:px-6 lg:px-8">
-      <section class="mx-auto flex min-h-[calc(100vh-2.5rem)] w-full max-w-7xl items-center">
+      <section class="mx-auto flex min-h-[calc(100vh-2.5rem)] w-full max-w-7xl items-start">
         <div class="mockup-window terminal-shell w-full overflow-hidden border border-secondary/35 bg-base-300/95">
           <div class="terminal-grid border-t border-secondary/25 bg-base-100/92">
             <div class="navbar min-h-0 border-b border-secondary/20 bg-neutral/80 px-4 py-3 sm:px-6">
@@ -65,30 +65,45 @@
                   </div>
                 </div>
 
-                <div id="repos" class="grid gap-4 sm:grid-cols-2">
-                  {{ range $repos }}
-                    <article class="card repo-card card-border border-secondary/25 bg-neutral/85">
-                      <div class="card-body gap-4 p-5">
-                        <div class="space-y-2">
-                          <p class="font-mono text-xs text-accent">./{{ .repo }}</p>
-                          <h2 class="card-title text-xl">{{ .name }}</h2>
-                          <p class="text-sm leading-6 text-base-content/75">{{ .description }}</p>
+                <div id="repos" class="space-y-4">
+                  <div class="terminal-search rounded border border-secondary/25 bg-neutral/85 px-3 py-2">
+                    <label class="input input-ghost flex h-auto min-h-0 w-full items-center gap-3 border-0 bg-transparent p-0 font-mono text-sm" for="project-search">
+                      <span class="shrink-0 text-accent">PS</span>
+                      <span class="hidden shrink-0 text-secondary/85 sm:inline">repos&gt;</span>
+                      <span class="project-search-caret" aria-hidden="true"></span>
+                      <input id="project-search" class="min-w-0 grow placeholder:text-base-content/45" type="search" autocomplete="off" spellcheck="false" placeholder="Search projects" aria-controls="project-grid">
+                    </label>
+                  </div>
+
+                  <div id="project-grid" class="grid gap-4 sm:grid-cols-2">
+                    {{ range $repos }}
+                      <article class="card repo-card card-border border-secondary/25 bg-neutral/85">
+                        <div class="card-body gap-4 p-5">
+                          <div class="space-y-2">
+                            <p class="font-mono text-xs text-accent">./{{ .repo }}</p>
+                            <h2 class="card-title text-xl">{{ .name }}</h2>
+                            <p class="text-sm leading-6 text-base-content/75">{{ .description }}</p>
+                          </div>
+                          <div class="flex flex-wrap gap-2">
+                            {{ range .tags }}
+                              <span class="badge badge-soft badge-secondary">{{ . }}</span>
+                            {{ end }}
+                          </div>
+                          <div class="rounded bg-base-100/80 px-3 py-2 font-mono text-xs text-secondary">
+                            {{ .command }}
+                          </div>
+                          <div class="card-actions justify-between gap-2">
+                            <a class="link link-hover link-accent text-sm" href="{{ .href }}">{{ .repo }}</a>
+                            <a class="btn btn-outline btn-sm" href="{{ .href }}">GitHub</a>
+                          </div>
                         </div>
-                        <div class="flex flex-wrap gap-2">
-                          {{ range .tags }}
-                            <span class="badge badge-soft badge-secondary">{{ . }}</span>
-                          {{ end }}
-                        </div>
-                        <div class="rounded bg-base-100/80 px-3 py-2 font-mono text-xs text-secondary">
-                          {{ .command }}
-                        </div>
-                        <div class="card-actions justify-between gap-2">
-                          <a class="link link-hover link-accent text-sm" href="{{ .href }}">{{ .repo }}</a>
-                          <a class="btn btn-outline btn-sm" href="{{ .href }}">GitHub</a>
-                        </div>
-                      </div>
-                    </article>
-                  {{ end }}
+                      </article>
+                    {{ end }}
+                  </div>
+
+                  <p id="project-empty" class="rounded border border-secondary/25 bg-neutral/85 px-4 py-3 font-mono text-sm text-secondary" role="status" aria-live="polite" hidden>
+                    No projects found.
+                  </p>
                 </div>
               </div>
             </div>
@@ -96,5 +111,87 @@
         </div>
       </section>
     </main>
+    <script>
+      (() => {
+        const search = document.querySelector("#project-search");
+        const grid = document.querySelector("#project-grid");
+        const empty = document.querySelector("#project-empty");
+
+        if (!search || !grid || !empty) {
+          return;
+        }
+
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const cards = Array.from(grid.querySelectorAll(".repo-card")).map((card) => ({
+          element: card,
+          text: card.textContent.toLowerCase().replace(/\s+/g, " ").trim(),
+        }));
+        let filterTimer;
+        let heightTimer;
+
+        const matchesQuery = (text, query) => !query || text.includes(query);
+
+        const holdGridHeight = () => {
+          grid.style.minHeight = `${grid.offsetHeight}px`;
+          window.clearTimeout(heightTimer);
+          heightTimer = window.setTimeout(() => {
+            grid.style.minHeight = "";
+          }, reduceMotion ? 0 : 260);
+        };
+
+        const previewFilter = () => {
+          const query = search.value.toLowerCase().trim();
+
+          empty.hidden = true;
+          cards.forEach(({ element, text }) => {
+            const isVisible = matchesQuery(text, query);
+
+            if (isVisible) {
+              element.hidden = false;
+            }
+
+            element.classList.toggle("repo-card-filtered", !isVisible);
+          });
+        };
+
+        const filterProjects = () => {
+          const query = search.value.toLowerCase().trim();
+          const committedQuery = query;
+          let visibleCount = 0;
+
+          holdGridHeight();
+
+          cards.forEach(({ element, text }) => {
+            const isVisible = matchesQuery(text, query);
+
+            if (isVisible) {
+              element.hidden = false;
+              element.classList.remove("repo-card-filtered");
+            } else {
+              element.classList.add("repo-card-filtered");
+              window.setTimeout(() => {
+                if (!matchesQuery(text, search.value.toLowerCase().trim())) {
+                  element.hidden = true;
+                }
+              }, reduceMotion ? 0 : 180);
+            }
+
+            visibleCount += isVisible ? 1 : 0;
+          });
+
+          window.setTimeout(() => {
+            if (search.value.toLowerCase().trim() === committedQuery) {
+              empty.hidden = visibleCount > 0;
+            }
+          }, reduceMotion ? 0 : 180);
+        };
+
+        search.addEventListener("input", () => {
+          previewFilter();
+          window.clearTimeout(filterTimer);
+          filterTimer = window.setTimeout(filterProjects, reduceMotion ? 0 : 160);
+        });
+      })();
+    </script>
   </body>
 </html>
