@@ -1,0 +1,28 @@
+{
+  "name": "poshtools",
+  "version": "1.0.0",
+  "description": "Hugo landing page for poshtools.com.",
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/input.css -o ./static/css/styles.css --minify",
+    "build": "npm run build:css && hugo --minify",
+    "dev:css": "tailwindcss -i ./assets/css/input.css -o ./static/css/styles.css --watch",
+    "dev": "hugo server --disableFastRender"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ironmansoftware/poshtools.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/ironmansoftware/poshtools/issues"
+  },
+  "homepage": "https://github.com/ironmansoftware/poshtools#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "daisyui": "^5.7.0",
+    "tailwindcss": "^4.3.3"
+  }
+}

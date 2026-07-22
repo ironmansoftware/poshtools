@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@source "../../layouts";
+@source "../../content";
+@plugin "daisyui" {
+  themes: poshtools --default;
+  logs: false;
+}
+@plugin "daisyui/theme" {
+  name: "poshtools";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #090912;
+  --color-base-200: #10101d;
+  --color-base-300: #191428;
+  --color-base-content: #f4efff;
+  --color-primary: #652d90;
+  --color-primary-content: #ffffff;
+  --color-secondary: #9e6dcb;
+  --color-secondary-content: #100815;
+  --color-accent: #34d3c8;
+  --color-accent-content: #051211;
+  --color-neutral: #211a2f;
+  --color-neutral-content: #f2eaff;
+  --color-info: #70b8ff;
+  --color-info-content: #06111e;
+  --color-success: #50dc8b;
+  --color-success-content: #06140b;
+  --color-warning: #ffd166;
+  --color-warning-content: #1f1500;
+  --color-error: #ff6b8a;
+  --color-error-content: #21020a;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+html {
+  background: #090912;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, rgba(101, 45, 144, 0.24), transparent 38%),
+    linear-gradient(90deg, transparent 0%, rgba(52, 211, 200, 0.12) 52%, transparent 100%),
+    linear-gradient(180deg, #0b0714 0%, #090912 58%, #130d1f 100%);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.terminal-shell {
+  box-shadow: 0 24px 90px rgba(7, 3, 14, 0.62), 0 0 0 1px rgba(158, 109, 203, 0.2);
+}
+
+.terminal-grid {
+  background-image:
+    linear-gradient(rgba(158, 109, 203, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(158, 109, 203, 0.08) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.65em;
+  height: 1.1em;
+  margin-left: 0.12em;
+  transform: translateY(0.15em);
+  background: #34d3c8;
+  animation: blink 1s steps(1, end) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.repo-card {
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.repo-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(158, 109, 203, 0.75);
+  background: rgba(33, 26, 47, 0.96);
+}

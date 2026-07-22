@@ -1,0 +1,7 @@
+baseURL = 'https://poshtools.com/'
+languageCode = 'en-us'
+title = 'PoshTools'
+disableKinds = ['taxonomy', 'term']
+
+[params]
+description = 'A landing page for PoshTools PowerShell developer utilities from Ironman Software.'
